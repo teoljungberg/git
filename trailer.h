@@ -5,14 +5,14 @@
 #include "strbuf.h"
 
 enum trailer_where {
-	WHERE_DEFAULT,
+	WHERE_UNSPECIFIED,
 	WHERE_END,
 	WHERE_AFTER,
 	WHERE_BEFORE,
 	WHERE_START
 };
 enum trailer_if_exists {
-	EXISTS_DEFAULT,
+	EXISTS_UNSPECIFIED,
 	EXISTS_ADD_IF_DIFFERENT_NEIGHBOR,
 	EXISTS_ADD_IF_DIFFERENT,
 	EXISTS_ADD,
@@ -20,7 +20,7 @@ enum trailer_if_exists {
 	EXISTS_DO_NOTHING
 };
 enum trailer_if_missing {
-	MISSING_DEFAULT,
+	MISSING_UNSPECIFIED,
 	MISSING_ADD,
 	MISSING_DO_NOTHING
 };
@@ -119,8 +119,10 @@ struct trailer_iterator {
 	struct strbuf val;
 
 	/* private */
-	struct trailer_info info;
-	size_t cur;
+	struct {
+		struct trailer_info info;
+		size_t cur;
+	} __private_to_trailer_c__do_not_use;
 };
 
 /*
