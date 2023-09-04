@@ -858,6 +858,19 @@ static int run_argv(int *argcp, const char ***argv)
 	return done_alias;
 }
 
+int git_config_get_status_by_default(void)
+{
+	const char *value = "";
+	git_config_get_value("core.statusByDefault", &value);
+	if (!value)
+		return -1;
+	if (!strcasecmp(value, "true"))
+		return 1;
+	if (!strcasecmp(value, "false"))
+		return 0;
+	return -1;
+}
+
 int cmd_main(int argc, const char **argv)
 {
 	const char *cmd;
@@ -896,12 +909,17 @@ int cmd_main(int argc, const char **argv)
 	handle_options(&argv, &argc, NULL);
 
 	if (!argc) {
-		/* The user didn't specify a command; give them help */
-		commit_pager_choice();
-		printf(_("usage: %s\n\n"), git_usage_string);
-		list_common_cmds_help();
-		printf("\n%s\n", _(git_more_info_string));
-		exit(1);
+		if (git_config_get_status_by_default() == 1) {
+			argv[0] = "status";
+			argc++;
+		} else {
+			/* The user didn't specify a command; give them help */
+			commit_pager_choice();
+			printf(_("usage: %s\n\n"), git_usage_string);
+			list_common_cmds_help();
+			printf("\n%s\n", _(git_more_info_string));
+			exit(1);
+		}
 	}
 
 	if (!strcmp("--version", argv[0]) || !strcmp("-v", argv[0]))
